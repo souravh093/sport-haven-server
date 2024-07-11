@@ -13,6 +13,7 @@ export const sendImageToCloudinary = (
   imageName: string,
   path: string,
 ): Promise<Record<string, unknown>> => {
+  console.log(imageName, path)
   return new Promise((resolve, reject) => {
     cloudinary.uploader.upload(
       path,

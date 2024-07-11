@@ -1,10 +1,12 @@
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
+import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import { ProductSearchableFields } from './product.constant';
 import { TProduct } from './product.interface';
 import { Product } from './product.model';
 
-const createProductIntoDB = async (payload: TProduct) => {
+const createProductIntoDB = async (payload: TProduct, file: any) => {
+  console.log(file, 'file', payload, 'payload');
   // check is product already exist with name
   const isProductAlreadyExist = await Product.findOne({
     name: payload.name,
@@ -15,7 +17,20 @@ const createProductIntoDB = async (payload: TProduct) => {
     throw new AppError(409, 'Product Already Exist');
   }
 
-  const result = await Product.create(payload);
+  // send image to cloudinary
+  const imageName: string = `${payload.name}-${Date.now()}`;
+  const path: string = file?.path;
+
+  const { secure_url } = (await sendImageToCloudinary(imageName, path)) as {
+    secure_url: string;
+  };
+
+  const result = await Product.create({
+    ...payload,
+    price: Number(payload.price),
+    stockQuantity: Number(payload.stockQuantity),
+    image: secure_url,
+  });
 
   return result;
 };
