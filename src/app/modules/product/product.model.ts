@@ -29,6 +29,7 @@ const productSchema = new Schema<TProduct>(
     },
     rating: {
       type: Number,
+      default: 0,
     },
     image: {
       type: String,

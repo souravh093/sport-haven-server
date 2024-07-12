@@ -6,7 +6,6 @@ import { TProduct } from './product.interface';
 import { Product } from './product.model';
 
 const createProductIntoDB = async (payload: TProduct, file: any) => {
-  console.log(file, 'file', payload, 'payload');
   // check is product already exist with name
   const isProductAlreadyExist = await Product.findOne({
     name: payload.name,
@@ -37,6 +36,7 @@ const createProductIntoDB = async (payload: TProduct, file: any) => {
 
 // get all product
 const getAllProductFromDB = async (query: Record<string, unknown>) => {
+
   const productQuery = new QueryBuilder(Product.find(), query)
     .search(ProductSearchableFields)
     .filter()
@@ -59,7 +59,11 @@ const getSingleProductFromDB = async (id: string) => {
   return result;
 };
 
-const updateProductFromDB = async (id: string, payload: Partial<TProduct>) => {
+const updateProductFromDB = async (
+  id: string,
+  payload: Partial<TProduct>,
+  file: any,
+) => {
   // check is product already exist with
   const findProductById = await Product.findById(id);
 
@@ -68,8 +72,24 @@ const updateProductFromDB = async (id: string, payload: Partial<TProduct>) => {
     throw new AppError(404, 'Product not found');
   }
 
+  // send image to cloudinary
+  if (file) {
+    const imageName: string = `${payload.name}-${Date.now()}`;
+    const path: string = file?.path;
+
+    const { secure_url } = (await sendImageToCloudinary(imageName, path)) as {
+      secure_url: string;
+    };
+
+    payload.image = secure_url;
+  }
+
   //   then update the product
-  const result = await Product.findByIdAndUpdate(id, payload, { new: true });
+  const result = await Product.findByIdAndUpdate(
+    id,
+    { ...payload },
+    { new: true },
+  );
 
   return result;
 };

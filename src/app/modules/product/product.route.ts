@@ -18,6 +18,7 @@ router.get('/:id', ProductController.getSingleProduct);
 
 router.patch(
   '/:id',
+  upload.single('image'),
   validateRequest(ProductValidations.updateProductValidation),
   ProductController.updateProduct,
 );
