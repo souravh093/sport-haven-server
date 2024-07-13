@@ -2,13 +2,12 @@ import { Router } from 'express';
 import validateRequest from '../../middlewares/validateRequest';
 import { ProductValidations } from './product.validation';
 import { ProductController } from './product.controller';
-import { upload } from '../../utils/sendImageToCloudinary';
+
 
 const router = Router();
 
 router.post(
   '/',
-  upload.single('image'),
   validateRequest(ProductValidations.createProductValidation),
   ProductController.createProduct,
 );
@@ -18,10 +17,10 @@ router.get('/:id', ProductController.getSingleProduct);
 
 router.patch(
   '/:id',
-  upload.single('image'),
   validateRequest(ProductValidations.updateProductValidation),
   ProductController.updateProduct,
 );
+router.patch("/rating/:id", ProductController.updateRating);
 
 router.delete('/:id', ProductController.deleteProduct);
 

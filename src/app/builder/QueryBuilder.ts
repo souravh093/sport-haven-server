@@ -35,24 +35,23 @@ class QueryBuilder<T> {
 
     excludeFields.forEach((el) => delete queryObj[el]);
 
-
-  // Apply price filter if min and max are provided
-  if (Object.prototype.hasOwnProperty.call(queryObj, 'price')) {
-    const priceFilter = queryObj['price'] as { min: number; max: number };
-    if (priceFilter.min !== undefined && priceFilter.max !== undefined) {
-      this.modelQuery = this.modelQuery.find({
-        price: { $gte: priceFilter.min, $lte: priceFilter.max }
-      } as FilterQuery<T>);
+    // Apply price filter if min and max are provided
+    if (Object.prototype.hasOwnProperty.call(queryObj, 'price')) {
+      const priceFilter = queryObj['price'] as { min: number; max: number };
+      if (priceFilter.min !== undefined && priceFilter.max !== undefined) {
+        this.modelQuery = this.modelQuery.find({
+          price: { $gte: priceFilter.min, $lte: priceFilter.max },
+        } as FilterQuery<T>);
+      }
+      delete queryObj['price'];
     }
-    delete queryObj['price'];
-  }
 
     // Apply rating filter if provided
     if (Object.prototype.hasOwnProperty.call(queryObj, 'rating')) {
       const ratingFilter = queryObj['rating'] as number;
       if (ratingFilter !== undefined && ratingFilter > 0) {
         this.modelQuery = this.modelQuery.find({
-          rating: ratingFilter
+          rating: ratingFilter,
         } as FilterQuery<T>);
       }
       delete queryObj['rating'];

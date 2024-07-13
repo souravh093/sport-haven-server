@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import QueryBuilder from '../../builder/QueryBuilder';
 import AppError from '../../errors/AppError';
-import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
+// import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
 import { ProductSearchableFields } from './product.constant';
 import { TProduct } from './product.interface';
 import { Product } from './product.model';
 
-const createProductIntoDB = async (payload: TProduct, file: any) => {
+const createProductIntoDB = async (payload: TProduct) => {
   // check is product already exist with name
   const isProductAlreadyExist = await Product.findOne({
     name: payload.name,
@@ -17,19 +17,10 @@ const createProductIntoDB = async (payload: TProduct, file: any) => {
     throw new AppError(409, 'Product Already Exist');
   }
 
-  // send image to cloudinary
-  const imageName: string = `${payload.name}-${Date.now()}`;
-  const path: string = file?.path;
-
-  const { secure_url } = (await sendImageToCloudinary(imageName, path)) as {
-    secure_url: string;
-  };
-
   const result = await Product.create({
     ...payload,
     price: Number(payload.price),
     stockQuantity: Number(payload.stockQuantity),
-    image: secure_url,
   });
 
   return result;
@@ -37,8 +28,10 @@ const createProductIntoDB = async (payload: TProduct, file: any) => {
 
 // get all product
 const getAllProductFromDB = async (query: Record<string, unknown>) => {
-
-  const productQuery = new QueryBuilder(Product.find(), query)
+  const productQuery = new QueryBuilder(
+    Product.find(),
+    query,
+  )
     .search(ProductSearchableFields)
     .filter()
     .sort()
@@ -60,29 +53,13 @@ const getSingleProductFromDB = async (id: string) => {
   return result;
 };
 
-const updateProductFromDB = async (
-  id: string,
-  payload: Partial<TProduct>,
-  file: any,
-) => {
+const updateProductFromDB = async (id: string, payload: Partial<TProduct>) => {
   // check is product already exist with
   const findProductById = await Product.findById(id);
 
   //   if product not found then throw error message
   if (!findProductById) {
     throw new AppError(404, 'Product not found');
-  }
-
-  // send image to cloudinary
-  if (file) {
-    const imageName: string = `${payload.name}-${Date.now()}`;
-    const path: string = file?.path;
-
-    const { secure_url } = (await sendImageToCloudinary(imageName, path)) as {
-      secure_url: string;
-    };
-
-    payload.image = secure_url;
   }
 
   //   then update the product
@@ -110,10 +87,31 @@ const deleteProductFromDB = async (id: string) => {
   return result;
 };
 
+const updateProductRatingFromDB = async (id: string, rating: number) => {
+  const findProductById = await Product.findById(id);
+
+  if (!findProductById) {
+    throw new AppError(404, 'Product not found');
+  }
+
+  let averageRating = rating;
+  if (findProductById?.rating) {
+    averageRating = (findProductById?.rating + rating) / 2;
+  }
+  const result = await Product.findByIdAndUpdate(
+    id,
+    { rating: averageRating },
+    { new: true },
+  );
+
+  return result;
+};
+
 export const ProductServices = {
   createProductIntoDB,
   getAllProductFromDB,
   updateProductFromDB,
   deleteProductFromDB,
   getSingleProductFromDB,
+  updateProductRatingFromDB,
 };

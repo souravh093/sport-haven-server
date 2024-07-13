@@ -9,8 +9,9 @@ const createProductValidation = z.object({
     category: z.string({ required_error: 'Product category is required' }),
     brand: z.string({ required_error: 'Product brand is required' }),
     rating: z.number().optional(),
-    price: z.string({ required_error: 'Product price is required' }),
-    stockQuantity: z.string({ required_error: 'Product stock quantity is required' }),
+    price: z.number({ required_error: 'Product price is required' }),
+    stockQuantity: z.number({ required_error: 'Product stock quantity is required' }),
+    image: z.string({ required_error: 'Product image is required' }),
   }),
 });
 
@@ -21,8 +22,9 @@ const updateProductValidation = z.object({
     category: z.string().optional(),
     brand: z.string().optional(),
     rating: z.number().optional(),
-    price: z.string().optional(),
-    stockQuantity: z.string().optional(),
+    price: z.number().optional(),
+    stockQuantity: z.number().optional(),
+    image: z.string().optional(),
   }),
 });
 

@@ -4,7 +4,7 @@ import sendResponse from '../../utils/sendResponse';
 import { ProductServices } from './product.service';
 
 const createProduct = catchAsync(async (req, res) => {
-  const result = await ProductServices.createProductIntoDB(req.body, req.file);
+  const result = await ProductServices.createProductIntoDB(req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.CREATED,
@@ -40,10 +40,7 @@ const updateProduct = catchAsync(async (req, res) => {
   const result = await ProductServices.updateProductFromDB(
     req.params.id,
     req.body,
-    req.file,
   );
-
-  console.log(req.body, "req.body", req.params.id)
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -64,10 +61,25 @@ const deleteProduct = catchAsync(async (req, res) => {
   });
 });
 
+const updateRating = catchAsync(async (req, res) => {
+  const result = await ProductServices.updateProductRatingFromDB(
+    req.params.id,
+    req.body.rating,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Product rating updated successfully',
+    data: result,
+  });
+});
+
 export const ProductController = {
   createProduct,
   getAllProduct,
   getSingleProduct,
   updateProduct,
   deleteProduct,
+  updateRating,
 };
