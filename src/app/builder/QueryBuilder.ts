@@ -49,10 +49,29 @@ class QueryBuilder<T> {
     // Apply rating filter if provided
     if (Object.prototype.hasOwnProperty.call(queryObj, 'rating')) {
       const ratingFilter = queryObj['rating'] as number;
-      if (ratingFilter !== undefined && ratingFilter > 0) {
-        this.modelQuery = this.modelQuery.find({
-          rating: ratingFilter,
-        } as FilterQuery<T>);
+      if (ratingFilter !== undefined) {
+        if (ratingFilter === 1) {
+          this.modelQuery = this.modelQuery.find({
+            rating: { $lte: 1 },
+          } as FilterQuery<T>);
+        } else if (ratingFilter > 1 && ratingFilter <= 2) {
+          // For ratings 2 through 5, find products with a rating less than or equal to the provided rating
+          this.modelQuery = this.modelQuery.find({
+            rating: { $lte: 2, $gt: 1 },
+          } as FilterQuery<T>);
+        } else if (ratingFilter > 2 && ratingFilter <= 3) {
+          this.modelQuery = this.modelQuery.find({
+            rating: { $lte: 3, $gt: 2 },
+          } as FilterQuery<T>);
+        } else if (ratingFilter > 3 && ratingFilter <= 4) {
+          this.modelQuery = this.modelQuery.find({
+            rating: { $lte: 4, $gt: 3 },
+          } as FilterQuery<T>);
+        } else if (ratingFilter > 4 && ratingFilter <= 5) {
+          this.modelQuery = this.modelQuery.find({
+            rating: { $lte: 5, $gt: 4 },
+          } as FilterQuery<T>);
+        }
       }
       delete queryObj['rating'];
     }
@@ -63,9 +82,11 @@ class QueryBuilder<T> {
     return this;
   }
 
-  // sorting method
   sort() {
-    const sortDirection = this.query.sort === 'asc' ? 'price' : '-price';
+    let sortDirection = '-createdAt';
+    if (this.query.sort) {
+      sortDirection = this.query.sort === 'asc' ? 'price' : '-price';
+    }
 
     this.modelQuery = this.modelQuery.sort(sortDirection);
 
