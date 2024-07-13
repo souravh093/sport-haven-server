@@ -2,7 +2,7 @@
   "name": "SportHaven-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "start:prod": "nodemon ./dist/server.js",
     "start": "node ./dist/server.js",
